@@ -20,6 +20,13 @@ class JobViewModel(private val repository: JobRepository) : ViewModel() {
         }
     }
 
+    fun updateJob(jobId: String, updates: Map<String, Any>, callback: (Boolean, String) -> Unit) {
+        repository.updateJob(jobId, updates) { success, message ->
+            if (success) getAllJobs()
+            callback(success, message)
+        }
+    }
+
     fun getAllJobs() {
         repository.getAllJobs { jobsList, success, message ->
             if (success) _jobs.value = jobsList

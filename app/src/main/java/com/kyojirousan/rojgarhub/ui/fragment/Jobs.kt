@@ -72,10 +72,12 @@ class Jobs : Fragment() {
     private fun setupObservers() {
         jobViewModel.jobs.observe(viewLifecycleOwner) { jobs ->
             if (_binding != null) {
-                val sortedJobs = jobs.sortedByDescending { it.postedDate }
-                jobsAdapter.updateJobs(sortedJobs)
-                binding.jobsRecyclerView.visibility = View.VISIBLE
-                binding.progressBarJobs?.visibility = View.GONE
+                requireActivity().runOnUiThread {
+                    val sortedJobs = jobs.sortedByDescending { it.postedDate }
+                    jobsAdapter.updateJobs(sortedJobs)
+                    binding.jobsRecyclerView.visibility = View.VISIBLE
+                    binding.progressBarJobs?.visibility = View.GONE
+                }
             }
         }
     }

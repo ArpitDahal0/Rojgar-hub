@@ -55,9 +55,11 @@ class Profile : Fragment() {
         if (currentUser != null) {
             userViewModel.getUserFromDatabase(currentUser.uid) { user, success, message ->
                 if (success && user != null) {
+                    Log.d(TAG, "User loaded successfully: ${user.firstName}")
                     currentUserModel = user
                     updateUI(user)
                 } else if (!success) {
+                    Log.e(TAG, "Failed to load user: $message")
                     Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -67,13 +69,22 @@ class Profile : Fragment() {
     }
 
     private fun updateUI(user: UserModel) {
-        binding.profileName.text = user.firstName
-        binding.profileEmail.text = user.email
-        binding.profileRole.text = user.role.uppercase()
+        requireActivity().runOnUiThread {
+            binding.profileName.text = user.firstName
+            binding.profileEmail.text = user.email
+            binding.profileRole.text = user.role.uppercase()
+        }
     }
 
     private fun navigateToEditProfile() {
+        if (currentUserModel == null) {
+            Log.e(TAG, "Cannot navigate to Edit Profile: currentUserModel is null")
+            Toast.makeText(requireContext(), "User data not loaded yet", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
         currentUserModel?.let { user ->
+            Log.d(TAG, "Navigating to Edit Profile with user: ${user.firstName}")
             val intent = Intent(requireContext(), EditProfileActivity::class.java)
             intent.putExtra("USER_DATA", user)
             startActivity(intent)
